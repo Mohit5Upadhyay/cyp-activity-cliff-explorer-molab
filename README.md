@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://molab.marimo.io/notebooks"><strong>Open in molab</strong></a>
+  <a href="https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py"><strong>Open in molab</strong></a>
   &nbsp;·&nbsp;
   <a href="https://marimo.io/pages/events/notebook-competition-3"><strong>Competition page</strong></a>
   &nbsp;·&nbsp;
@@ -28,7 +28,7 @@
 </p>
 
 <p align="center">
-  <img src="img/hero.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+  <img src="img/header.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
 </p>
 
 <p align="center"><i>Explore measured activity, compare related molecules, and audit model error in one notebook.</i></p>
@@ -87,17 +87,32 @@ flowchart TD
 ## Screenshots and demo
 
 
-The repository does not currently contain a project-specific video URL. The official links below are the correct places to access the competition context, the live molab environment, and the source dataset:
-
-- [Open the notebook workspace on molab](https://molab.marimo.io/notebooks)
-- [Read about marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
-- [Inspect the OpenADMET dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
-
 <p align="center">
-  <img src="img/model-audit.png" width="78%" alt="Random Forest model audit with predicted and experimental CYP3A4 activity">
+  <img src="img/scaffoldMetrics.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
 </p>
 
-<p align="center"><i>Model audit: predicted versus experimental activity on held-out scaffolds.</i></p>
+
+<p align="center">
+  <img src="img/molNetwork.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+</p>
+
+
+
+<p align="center">
+  <img src="img/3d.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+</p>
+
+
+<p align="center">
+  <img src="img/globalPerformance.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+</p>
+
+
+The repository does not currently contain a project-specific video URL. The official links below are the correct places to access the competition context, the live molab environment, and the source dataset:
+
+- [Open the notebook workspace on molab](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)  [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)
+- [Read about marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
+- [Inspect the OpenADMET dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
 
 ## Run the notebook
 
