@@ -132,7 +132,7 @@ marimo run cyp_activity_cliff.py  # read only
 
 ### Run on molab
 
-1. Open [molab notebooks](https://molab.marimo.io/notebooks).
+1. Open [molab notebooks](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py).
 2. Upload `cyp_activity_cliff.py`.
 3. Run the notebook.
 4. Wait for dataset preparation, scaffold extraction, and model training to complete.
@@ -176,7 +176,7 @@ These tests cover backend behavior. The full notebook additionally requires acce
 
 - [OpenADMET Octant CYP inhibition and reactivity dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
 - [marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
-- [molab notebooks](https://molab.marimo.io/notebooks)
+- [molab notebooks](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)
 - [marimo](https://marimo.io)
 - [RDKit](https://www.rdkit.org/)
 - [wigglystuff](https://github.com/koaning/wigglystuff)
@@ -191,5 +191,5 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE).
 <p align="center">
   <b>Explore the data. Find the cliff. Audit the model.</b>
   <br><br>
-  <a href="https://molab.marimo.io/notebooks">Launch with molab</a>
+  <a href="https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py">Launch with molab</a>
 </p>
