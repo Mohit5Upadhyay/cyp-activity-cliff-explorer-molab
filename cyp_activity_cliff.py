@@ -211,7 +211,7 @@ def _(mo):
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                 <a target="_blank" rel="noopener noreferrer" href="https://marimo.io/pages/events/notebook-competition-3">molab Competition #3</a>
                 <span aria-hidden="true">|</span>
-                <a target="_blank" rel="noopener noreferrer" href="https://github.com/mohitupadhyay">Mohit Upadhyay</a>
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab">Mohit Upadhyay</a>
               </div>
               <h1 class="cyp-title">CYP3A4 Activity Cliff Explorer</h1>
               <p class="cyp-desc">
