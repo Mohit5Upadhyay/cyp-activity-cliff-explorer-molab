@@ -29,9 +29,10 @@ def _():
     return (mo,)
 
 
+# Cell 1
 @app.cell(hide_code=True)
 def _(mo):
-    """Introduction and methodology (SaaS UI)."""
+    """Introduction Header"""
     banner = """
     <style>
                     :root {
@@ -281,6 +282,89 @@ def _(mo):
     return (hero_banner,)
 
 
+# Cell 2
+@app.cell(hide_code=True)
+def _(mo):
+    scientific_map_view = mo.vstack([
+        mo.Html("""
+        <div class="cyp-section">
+            <div class="cyp-section__eyebrow">Before you run it / the scientific map</div>
+            <h2 class="cyp-section__title">What is this explorer measuring?</h2>
+            <div class="cyp-section__rule"></div>
+        </div>
+        <div class="cyp-close-grid">
+            <div class="cyp-close-card cyp-close-card--tint">
+                <div class="cyp-close-label">The question</div>
+                <h3 class="cyp-close-title">Can a tiny structural change create a large activity change?</h3>
+                <p class="cyp-close-copy">An <strong>activity cliff</strong> is a sharp structure-activity discontinuity: molecules with a closely related structure can show very different measured biological activity. This notebook searches for candidate cliffs among molecules that share a Bemis-Murcko scaffold, then lets you inspect the structures and the model error.</p>
+            </div>
+            <div class="cyp-close-card cyp-close-card--disclosure">
+                <div class="cyp-close-label">The honest boundary</div>
+                <h3 class="cyp-close-title">Evidence first, mechanism second</h3>
+                <p class="cyp-close-copy">The data can show a measured potency gap and a descriptor-model failure. The 3D viewer helps you form a structural hypothesis, but this notebook does not establish a binding pose, enzyme mechanism, or clinical risk.</p>
+            </div>
+        </div>
+        """),
+        mo.md(r"""
+        ### Abbreviations, decoded
+
+        | Term | Meaning here |
+        | --- | --- |
+        | **CYP3A4** | Cytochrome P450 3A4, an enzyme involved in the metabolism of many drugs. The notebook studies measured inhibition of this enzyme. |
+        | **IC$_{50}$** | Half-maximal inhibitory concentration: the concentration required to reduce measured enzyme activity by 50% in an assay. |
+        | **pIC$_{50}$** | The negative base-10 logarithm of IC$_{50}$, conventionally with IC$_{50}$ expressed in molar units. |
+        | **QC** | Quality control. Rows flagged as failed or problematic by the available assay fields are excluded before analysis. |
+        | **SMILES** | A text representation of a molecular structure. The notebook canonicalizes it so equivalent structures can be compared consistently. |
+        | **Bemis–Murcko scaffold** | The molecule's central ring-and-linker framework after peripheral substituents are removed. It is used here to group related molecules. |
+        | **1D/2D descriptors** | Scalar molecular summaries such as molecular weight, LogP, TPSA, hydrogen-bond counts, ring counts, and rotatable bonds. |
+        | **3D conformation** | A spatial arrangement of atoms. The viewer generates an illustrative conformer; it is not an experimentally determined protein-bound pose. |
+        | **ML / QSAR** | Machine learning / quantitative structure-activity relationship: learning a relationship between molecular features and measured activity. |
+        """).callout(kind="info"),
+        mo.md(r"""
+        ### The mathematics of potency
+
+        IC$_{50}$ and potency move in opposite directions: a **lower IC$_{50}$ means a smaller concentration is needed**, so the inhibitor is more potent. The logarithmic endpoint used here reverses that visual direction:
+
+        $$\mathrm{pIC}_{50} = -\log_{10}\left(\mathrm{IC}_{50}\ [\mathrm{M}]\right)$$
+
+        Therefore, **higher pIC$_{50}$ means higher potency**. A difference in pIC$_{50}$ is a fold-change in IC$_{50}$:
+
+        $$\Delta\mathrm{pIC}_{50} = \mathrm{pIC}_{50,A} - \mathrm{pIC}_{50,B}$$
+        $$\frac{\mathrm{IC}_{50,B}}{\mathrm{IC}_{50,A}} = 10^{\Delta\mathrm{pIC}_{50}}$$
+
+        For example, a 2-unit pIC$_{50}$ gap corresponds to a 100-fold IC$_{50}$ ratio. The notebook reports the dataset's `CYP3A4_pIC50` values directly; it does not convert them back to IC$_{50}$ without knowing the dataset's concentration units.
+        """).callout(kind="info"),
+        mo.md(r"""
+        ### How this notebook finds a cliff
+
+        For each scaffold $s$, the workflow collects the valid CYP3A4 pIC$_{50}$ measurements $y_i$ for its molecules and computes the sample variance:
+
+        $$\bar{y}_s = \frac{1}{n_s}\sum_{i=1}^{n_s} y_i$$
+        $$\mathrm{CliffScore}(s) = \mathrm{Var}(y_s) = \frac{1}{n_s-1}\sum_{i=1}^{n_s}(y_i - \bar{y}_s)^2$$
+
+        Larger variance means a wider spread of measured activity inside that shared scaffold group, so the scaffold is ranked as a **candidate** activity cliff. This is a screening score, not a universal clinical or mechanistic definition of a cliff. The current workflow requires at least three measured molecules per scaffold.
+        """).callout(kind="info"),
+        mo.md(r"""
+        ### Why compare 1D/2D descriptors with 3D structure?
+
+        The baseline Random Forest sees only the 1D/2D descriptor vector $x$ and learns an estimate $\hat{y} = f(x)$ for pIC$_{50}$. It does **not** receive a 3D conformer, protein structure, binding pose, or explicit spatial interaction features. Two molecules can therefore look similar to this baseline while differing in measured activity.
+
+        The 3D view is useful for **inspection and hypothesis generation**: a small substituent change may alter shape, steric contacts, orientation, or accessibility in a protein pocket. Those are plausible reasons for an activity cliff, but the viewer alone cannot prove which explanation is correct. The experiment here is narrower and testable: compare the measured pIC$_{50}$ with the descriptor-only prediction on a molecule selected from a high-variance scaffold.
+        """).callout(kind="neutral"),
+        mo.Html("""
+        <div class="cyp-close-card" style="margin-top: 4px;">
+            <div class="cyp-close-label">How the project helps</div>
+            <h3 class="cyp-close-title">It turns an aggregate score into an inspectable scientific question.</h3>
+            <p class="cyp-close-copy">Instead of reporting only one model metric, the explorer connects four evidence layers: QC-filtered OpenADMET measurements, scaffold-level variance, 2D structural differences with a generated 3D view, and held-out predictions. Scaffold-isolated splitting keeps the test scaffolds separate from training, so the audit asks whether the baseline transfers to unseen chemical cores rather than rewarding memorization.</p>
+            <div class="cyp-disclosure">Use the result to prioritize molecules or hypotheses for further assay and structural investigation. It is an educational and exploratory analysis, not a clinical, regulatory, or production prediction system.</div>
+        </div>
+        """),
+    ], gap=0.8)
+    scientific_map_view
+    return (scientific_map_view,)
+
+
+# Cell 3
 @app.cell(hide_code=True)
 def _(mo):
     start_analysis = mo.ui.run_button(
@@ -302,6 +386,7 @@ def _(mo):
     return (start_analysis,)
 
 
+# Cell 4
 @app.cell(hide_code=True)
 def _(mo):
     """All backend functions - data engine, scaffolds, ML, visuals, widgets."""
@@ -351,12 +436,12 @@ def _(mo):
     def filter_qc_passed(df: pd.DataFrame) -> pd.DataFrame:
         initial_count = len(df)
         result = df.copy()
-        if 'drc_qc_status' in result.columns:
-            result = result[~result['drc_qc_status'].astype(str).str.lower().isin(['fail', 'failed', 'false'])]
         if 'qc_flag_primary' in result.columns:
-            result = result[~result['qc_flag_primary'].astype(str).str.lower().isin(['fail', 'failed', 'true', 'flag'])]
+            result = result[result['qc_flag_primary'].astype(str).str.upper() == 'PASS']
+        if 'drc_qc_status' in result.columns:
+            result = result[result['drc_qc_status'].astype(str).str.upper() == 'PASS']
         if 'rollover_status' in result.columns:
-            result = result[~result['rollover_status'].astype(str).str.lower().isin(['true', 'yes', 'flagged'])]
+            result = result[~result['rollover_status'].astype(str).str.upper().isin(['TRUE', 'YES'])]
         removed = initial_count - len(result)
         logger.info(f"QC filter: removed {removed} of {initial_count} rows ({len(result)} remain)")
         return result
@@ -682,6 +767,7 @@ def _(mo):
     )
 
 
+# Cell 5
 @app.cell(hide_code=True)
 def _(filter_qc_passed, load_cyp_data, mo, prepare_dataset, start_analysis):
     mo.stop(
@@ -696,7 +782,7 @@ def _(filter_qc_passed, load_cyp_data, mo, prepare_dataset, start_analysis):
     mo.Html("""
         <div class="cyp-section">
             <div class="cyp-section__eyebrow">01 / foundation</div>
-            <div class="cyp-section__title">Load and quality-control the dataset</div>
+            <h2 class="cyp-section__title">Load and quality-control the dataset</h2>
             <div class="cyp-section__rule"></div>
         </div>
         """)
@@ -704,7 +790,7 @@ def _(filter_qc_passed, load_cyp_data, mo, prepare_dataset, start_analysis):
     df_prepared = prepare_dataset(df_raw, smiles_column="standardized_smiles")
     df = filter_qc_passed(df_prepared)
 
-    mo.Html(f"""
+    foundation_view = mo.Html(f"""
         <div class="cyp-status">
             <div class="cyp-status__mark">01</div>
             <div><p class="cyp-status__title">Dataset loaded successfully</p>
@@ -720,55 +806,52 @@ def _(filter_qc_passed, load_cyp_data, mo, prepare_dataset, start_analysis):
             <div class="cyp-metric"><div class="cyp-metric__value">QC</div><div class="cyp-metric__label">Filter applied</div></div>
         </div>
         """)
+    foundation_view
     return (df,)
 
 
+# Cell 6
 @app.cell(hide_code=True)
 def _(df, extract_scaffolds, mo):
-    mo.Html("""
-        <div class="cyp-section">
-            <div class="cyp-section__eyebrow">02 / chemical organization</div>
-            <div class="cyp-section__title">Extract Bemis-Murcko scaffolds</div>
-            <div class="cyp-section__rule"></div>
-        </div>
-        """)
     df_scaffolds = extract_scaffolds(df)
     scaffold_stats = df_scaffolds['scaffold'].value_counts()
+    scaffold_view = mo.vstack([
+            mo.Html("""
+            <div class="cyp-section">
+                <div class="cyp-section__eyebrow">02 / chemical organization</div>
+                <h2 class="cyp-section__title">Extract Bemis-Murcko scaffolds</h2>
+                <div class="cyp-section__rule"></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-status">
+                <div class="cyp-status__mark">02</div>
+                <div><p class="cyp-status__title">Scaffolds extracted</p>
+                <p class="cyp-status__detail">Molecules are grouped by their shared Bemis-Murcko core before any sampling or modeling.</p></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-metric-heading">Scaffolds Extracted</div>
+            <div class="cyp-metric-grid">
+                <div class="cyp-metric"><div class="cyp-metric__value">{len(scaffold_stats):,}</div><div class="cyp-metric__label">Unique scaffolds</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_stats.iloc[0]}</div><div class="cyp-metric__label">Largest scaffold</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_stats.median():.0f}</div><div class="cyp-metric__label">Median size</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{(scaffold_stats >= 5).sum()}</div><div class="cyp-metric__label">Scaffolds with 5+ molecules</div></div>
+            </div>
+            """)
+        ])
 
-    mo.Html(f"""
-        <div class="cyp-status">
-            <div class="cyp-status__mark">02</div>
-            <div><p class="cyp-status__title">Scaffolds extracted</p>
-            <p class="cyp-status__detail">Molecules are grouped by their shared Bemis-Murcko core before any sampling or modeling.</p></div>
-        </div>
-    """)
-    mo.Html(f"""
-        <div class="cyp-metric-heading">Scaffolds Extracted
- </div>
-        <div class="cyp-metric-grid">
-            <div class="cyp-metric"><div class="cyp-metric__value">{len(scaffold_stats):,}</div><div class="cyp-metric__label">Unique scaffolds</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_stats.iloc[0]}</div><div class="cyp-metric__label">Largest scaffold</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_stats.median():.0f}</div><div class="cyp-metric__label">Median size</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{(scaffold_stats >= 5).sum()}</div><div class="cyp-metric__label">Scaffolds with 5+ molecules</div></div>
-        </div>
-        """)
+    scaffold_view
     return (df_scaffolds,)
 
 
+# Cell 7
 @app.cell(hide_code=True)
 def _(CYP_ENDPOINT, df_scaffolds, mo, rank_cliff_scaffolds):
-    mo.Html("""
-        <div class="cyp-section">
-            <div class="cyp-section__eyebrow">03 / signal discovery</div>
-            <div class="cyp-section__title">Rank the activity cliffs</div>
-            <div class="cyp-section__rule"></div>
-        </div>
-        """)
-
     top_scaffolds, df_ranked = rank_cliff_scaffolds(
         df_scaffolds,
         endpoint=CYP_ENDPOINT,
-        top_k=15,
+        top_k=50,
         min_molecules=3
     )
 
@@ -783,36 +866,40 @@ def _(CYP_ENDPOINT, df_scaffolds, mo, rank_cliff_scaffolds):
     display_scaffolds = display_scaffolds[['rank', 'scaffold', 'n_molecules', 'avg_cliff_score']]
     display_scaffolds.columns = ['Rank', 'Scaffold SMILES', 'Molecules', 'Cliff Score']
 
-    mo.Html(f"""
-        <div class="cyp-status">
-            <div class="cyp-status__mark">03</div>
-            <div><p class="cyp-status__title">Activity cliffs identified</p>
-            <p class="cyp-status__detail">The ranking emphasizes high within-scaffold variance in CYP3A4 inhibition potency.</p></div>
-        </div>
-    """)
-    mo.Html(f"""
-        <div class="cyp-metric-heading">Activity Cliffs Identified</div>
-        <div class="cyp-metric-grid">
-            <div class="cyp-metric"><div class="cyp-metric__value">{CYP_ENDPOINT}</div><div class="cyp-metric__label">Endpoint analyzed</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{len(top_scaffolds)}</div><div class="cyp-metric__label">Ranked candidates</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">Variance</div><div class="cyp-metric__label">Ranking signal</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">3+</div><div class="cyp-metric__label">Minimum molecules</div></div>
-        </div>
-        <div class="cyp-note">Select one ranked scaffold below to open its molecular neighborhood and inspect the activity cliff.</div>
-        """)
+    cliff_view = mo.vstack([
+            mo.Html("""
+            <div class="cyp-section">
+                <div class="cyp-section__eyebrow">03 / signal discovery</div>
+                <h2 class="cyp-section__title">Rank the activity cliffs</h2>
+                <div class="cyp-section__rule"></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-status">
+                <div class="cyp-status__mark">03</div>
+                <div><p class="cyp-status__title">Activity cliffs identified</p>
+                <p class="cyp-status__detail">The ranking emphasizes high within-scaffold variance in CYP3A4 inhibition potency.</p></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-metric-heading">Activity Cliffs Identified</div>
+            <div class="cyp-metric-grid">
+                <div class="cyp-metric"><div class="cyp-metric__value">{CYP_ENDPOINT}</div><div class="cyp-metric__label">Endpoint analyzed</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{len(top_scaffolds)}</div><div class="cyp-metric__label">Ranked candidates</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">Variance</div><div class="cyp-metric__label">Ranking signal</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">3+</div><div class="cyp-metric__label">Minimum molecules</div></div>
+            </div>
+            <div class="cyp-note">Select one ranked scaffold below to open its molecular neighborhood and inspect the activity cliff.</div>
+            """)
+        ])
+
+    cliff_view
     return df_ranked, display_scaffolds, top_scaffolds
 
 
+# Cell 8
 @app.cell(hide_code=True)
 def _(CYP_ENDPOINT, df_ranked, mo, train_cliff_models):
-    mo.Html("""
-        <div class="cyp-section">
-            <div class="cyp-section__eyebrow">04 / honest baseline</div>
-            <div class="cyp-section__title">Train the scaffold-isolated ML auditor</div>
-            <div class="cyp-section__rule"></div>
-        </div>
-        """)
-
     auditor, train_df, test_df = train_cliff_models(
         df_ranked,
         endpoints=[CYP_ENDPOINT],
@@ -825,26 +912,38 @@ def _(CYP_ENDPOINT, df_ranked, mo, train_cliff_models):
     # Confirm zero scaffold overlap between train and test
     scaffold_overlap = len(set(train_df['scaffold']) & set(test_df['scaffold']))
 
-    mo.Html(f"""
-        <div class="cyp-status">
-            <div class="cyp-status__mark">04</div>
-            <div><p class="cyp-status__title">Model trained successfully</p>
-            <p class="cyp-status__detail">One Random Forest was trained once on molecular descriptors with scaffold overlap checked explicitly.</p></div>
-        </div>
-    """)
-    mo.Html(f"""
-        <div class="cyp-metric-heading">Model Trained Successfully</div>
-        <div class="cyp-metric-grid">
-            <div class="cyp-metric"><div class="cyp-metric__value">{CYP_ENDPOINT}</div><div class="cyp-metric__label">Endpoint modeled</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{len(train_df):,}</div><div class="cyp-metric__label">Train molecules / {train_df['scaffold'].nunique()} scaffolds</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{len(test_df):,}</div><div class="cyp-metric__label">Test molecules / {test_df['scaffold'].nunique()} scaffolds</div></div>
-            <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_overlap}</div><div class="cyp-metric__label">Scaffold overlap</div></div>
-        </div>
-        <div class="cyp-note"><strong>Leakage check passed.</strong> The model is evaluated on held-out scaffolds it never saw during training.</div>
-        """)
+    baseline_view = mo.vstack([
+            mo.Html("""
+            <div class="cyp-section">
+                <div class="cyp-section__eyebrow">04 / honest baseline</div>
+                <h2 class="cyp-section__title">Train the scaffold-isolated ML auditor</h2>
+                <div class="cyp-section__rule"></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-status">
+                <div class="cyp-status__mark">04</div>
+                <div><p class="cyp-status__title">Model trained successfully</p>
+                <p class="cyp-status__detail">One Random Forest was trained once on molecular descriptors with scaffold overlap checked explicitly.</p></div>
+            </div>
+            """),
+            mo.Html(f"""
+            <div class="cyp-metric-heading">Model Trained Successfully</div>
+            <div class="cyp-metric-grid">
+                <div class="cyp-metric"><div class="cyp-metric__value">{CYP_ENDPOINT}</div><div class="cyp-metric__label">Endpoint modeled</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{len(train_df):,}</div><div class="cyp-metric__label">Train molecules / {train_df['scaffold'].nunique()} scaffolds</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{len(test_df):,}</div><div class="cyp-metric__label">Test molecules / {test_df['scaffold'].nunique()} scaffolds</div></div>
+                <div class="cyp-metric"><div class="cyp-metric__value">{scaffold_overlap}</div><div class="cyp-metric__label">Scaffold overlap</div></div>
+            </div>
+            <div class="cyp-note"><strong>Leakage check passed.</strong> The model is evaluated on held-out scaffolds it never saw during training.</div>
+            """)
+        ])
+
+    baseline_view
     return auditor, metrics
 
 
+# Cell 9
 @app.cell(hide_code=True)
 def _(metrics, mo):
     metrics_display = metrics.copy()
@@ -852,13 +951,14 @@ def _(metrics, mo):
     mo.Html("""
         <div class="cyp-section">
             <div class="cyp-section__eyebrow">05 / measurement</div>
-            <div class="cyp-section__title">Model performance metrics</div>
+            <h2 class="cyp-section__title">Model performance metrics</h2>
             <div class="cyp-section__rule"></div>
         </div>
         """)
     return (metrics_display,)
 
 
+# Cell 10
 @app.cell(hide_code=True)
 def _(metrics_display, mo):
     mo.ui.table(
@@ -869,13 +969,14 @@ def _(metrics_display, mo):
     return
 
 
+# Cell 11
 @app.cell(hide_code=True)
 def _(mo):
-    mo.vstack([
+    interactive_intro_view = mo.vstack([
     mo.Html("""
     <div class="cyp-section">
             <div class="cyp-section__eyebrow">06 / interactive investigation</div>
-            <div class="cyp-section__title">Explore a cliff by scaffold and molecule</div>
+            <h2 class="cyp-section__title">Explore a cliff by scaffold and molecule</h2>
             <div class="cyp-section__rule"></div>
         </div>
     """),
@@ -894,28 +995,53 @@ def _(mo):
     Click any molecule node to see the detailed breakdown!
     """),
     ])
-    return
+
+    interactive_intro_view
+    return (interactive_intro_view,)
 
 
+# Cell 12
 @app.cell(hide_code=True)
-def _(display_scaffolds, mo):
-    scaffold_selector = mo.ui.table(
-        display_scaffolds,
-        selection="single",
-        label="Select a scaffold to explore"
+def _(CYP_ENDPOINT, mo, rank_cliff_scaffolds, test_df):
+    test_top_scaffolds, _ = rank_cliff_scaffolds(
+        test_df,
+        endpoint=CYP_ENDPOINT,
+        top_k=15,
+        min_molecules=3
     )
-    scaffold_selector
-    return (scaffold_selector,)
+
+    if len(test_top_scaffolds) == 0:
+        scaffold_selector = None
+        scaffold_table_display = mo.md(
+            "⚠️ **No test-set scaffolds meet `min_molecules=3`.** "
+            "Try lowering `min_molecules` to 2."
+        ).callout(kind="danger")
+    else:
+        test_display_scaffolds = test_top_scaffolds[['scaffold', 'n_molecules', 'avg_cliff_score']].copy()
+        test_display_scaffolds['rank'] = range(1, len(test_display_scaffolds) + 1)
+        test_display_scaffolds = test_display_scaffolds[['rank', 'scaffold', 'n_molecules', 'avg_cliff_score']]
+        test_display_scaffolds.columns = ['Rank', 'Scaffold SMILES', 'Molecules', 'Cliff Score']
+
+        scaffold_selector = mo.ui.table(
+            test_display_scaffolds,
+            selection="single",
+            label="Select a held-out test scaffold to explore"
+        )
+        scaffold_table_display = scaffold_selector
+
+    scaffold_table_display
+    return (scaffold_selector, test_top_scaffolds)
 
 
+# Cell 13
 @app.cell(hide_code=True)
-def _(mo, scaffold_selector, top_scaffolds):
+def _(mo, scaffold_selector, test_top_scaffolds):
     selected_scaffold_info = None
     selected_scaffold = None
 
     if scaffold_selector.value is not None and len(scaffold_selector.value) > 0:
         selected_scaffold = scaffold_selector.value.iloc[0]['Scaffold SMILES']
-        scaffold_row = top_scaffolds[top_scaffolds['scaffold'] == selected_scaffold].iloc[0]
+        scaffold_row = test_top_scaffolds[test_top_scaffolds['scaffold'] == selected_scaffold].iloc[0]
 
         selected_scaffold_info = mo.Html(f"""
         <div class="cyp-note">
@@ -933,6 +1059,7 @@ def _(mo, scaffold_selector, top_scaffolds):
     return (selected_scaffold,)
 
 
+# Cell 14
 @app.cell(hide_code=True)
 def _(CYP_ENDPOINT, create_scaffold_graph, df_ranked, mo, selected_scaffold):
     graph_widget = None
@@ -952,13 +1079,15 @@ def _(CYP_ENDPOINT, create_scaffold_graph, df_ranked, mo, selected_scaffold):
             mo.Html(f"""
                         <div class="cyp-section">
                             <div class="cyp-section__eyebrow">Scaffold neighborhood</div>
-                            <div class="cyp-section__title">Molecular network</div>
+                            <h2 class="cyp-section__title">Molecular network</h2>
                             <div class="cyp-section__rule"></div>
                         </div>
             """),
             mo.md(f"""
             Center node = scaffold structure
+
             Outer nodes = variants colored by **{CYP_ENDPOINT}** activity
+
             🔴 Red = high activity | 🔵 Blue = low activity
 
             **Click any molecule node for detailed analysis** ⬇️
@@ -972,6 +1101,7 @@ def _(CYP_ENDPOINT, create_scaffold_graph, df_ranked, mo, selected_scaffold):
     return (graph_widget,)
 
 
+# Cell 15
 @app.cell(hide_code=True)
 def _(df_ranked, get_selected_molecule_data, graph_widget, mo, pd):
     selected_molecule = None
@@ -1003,6 +1133,7 @@ def _(df_ranked, get_selected_molecule_data, graph_widget, mo, pd):
     return molecule_data, selected_molecule
 
 
+# Cell 16
 @app.cell(hide_code=True)
 def _(
     create_3d_viewer,
@@ -1046,6 +1177,32 @@ def _(
                 viewer_selected = create_3d_viewer(selected_molecule, color_scheme="cyanCarbon", w=320, h=280)
                 viewer_analog = create_3d_viewer(analog_smiles, color_scheme="magentaCarbon", w=320, h=280)
 
+                activity_delta = selected_value - analog_value
+                selected_is_more_potent = activity_delta > 0
+                equal_potency = np.isclose(activity_delta, 0.0)
+                potency_ratio = 10 ** abs(activity_delta)
+                if equal_potency:
+                    potency_statement = f"The molecule with pIC50 {selected_value:.2f} and the molecule with pIC50 {analog_value:.2f} have the same measured potency in this calculation."
+                elif selected_is_more_potent:
+                    potency_statement = f"The molecule with pIC50 {selected_value:.2f} shows much stronger measured CYP3A4 inhibitory potency than the molecule with pIC50 {analog_value:.2f}. The {activity_delta:.2f}-log-unit difference corresponds to an approximately {potency_ratio:,.0f}-fold difference in the implied IC50 values."
+                else:
+                    potency_statement = f"The molecule with pIC50 {analog_value:.2f} shows much stronger measured CYP3A4 inhibitory potency than the molecule with pIC50 {selected_value:.2f}. The {abs(activity_delta):.2f}-log-unit difference corresponds to an approximately {potency_ratio:,.0f}-fold difference in the implied IC50 values."
+
+                potency_callout = mo.md(
+                    f"""
+                    **Potency calculation from the measured `{endpoint}` values**
+
+                    A higher pIC50 means higher potency because pIC50 is the negative logarithm of IC50:
+
+                    $$\\Delta\\mathrm{{pIC}}_{{50}} = pIC50_{{selected}} - pIC50_{{analog}} = {selected_value:.2f} - {analog_value:.2f} = {activity_delta:.2f}$$
+                    $$\\text{{IC50 ratio}} = 10^{{|\\Delta\\mathrm{{pIC}}_{{50}}|}} = 10^{{|{activity_delta:.2f}|}} \\approx {potency_ratio:,.0f}$$
+
+                    {potency_statement}
+
+                    This is a potency ratio inferred from the logarithmic pIC50 difference. It does not claim a mechanism or a specific binding pose.
+                    """
+                ).callout(kind="info")
+
                 comparison_container = mo.vstack([
                     mo.Html(f"""
                     <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px;">
@@ -1064,17 +1221,18 @@ def _(
                                 <td style="text-align: right; padding: 8px;">-</td>
                             </tr>
                             <tr>
-                                <td style="padding: 8px;"><strong>Nearest Analog (Magenta)</strong></td>
+                                <td style="padding: 8px;"><strong>Comparison Analog (Magenta)</strong></td>
                                 <td style="text-align: right; padding: 8px; font-weight: bold; color: #c026d3;">{analog_value:.2f}</td>
                                 <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc2626;">{abs(selected_value - analog_value):.2f}</td>
                             </tr>
                         </table>
                     </div>
                     """),
+                    potency_callout,
                     mo.hstack([
                         mo.vstack([mo.md("**2D Structural Difference**").center(), mo.image(structure_img) if structure_img else mo.md("")]),
                         mo.vstack([mo.md("**3D: Selected Variant**").center(), mo.Html(viewer_selected)]),
-                        mo.vstack([mo.md("**3D: Nearest Analog**").center(), mo.Html(viewer_analog)])
+                        mo.vstack([mo.md("**3D: Comparison Analog**").center(), mo.Html(viewer_analog)])
                     ], justify="space-around", align="center")
                 ])
             else:
@@ -1086,6 +1244,7 @@ def _(
     return endpoint, selected_value
 
 
+# Cell 17
 @app.cell(hide_code=True)
 def _(
     auditor,
@@ -1105,6 +1264,10 @@ def _(
 
             if predicted is not None:
                 error = abs(predicted - selected_value)
+                prediction_delta = predicted - selected_value
+                implied_ic50_ratio = 10 ** error
+                predicted_more_potent = prediction_delta > 0
+                prediction_direction = "higher predicted potency" if predicted_more_potent else "lower predicted potency" if prediction_delta < 0 else "the same predicted potency"
 
                 dumbbell = create_dumbbell_chart(
                     predicted=predicted,
@@ -1117,7 +1280,7 @@ def _(
                     mo.Html(f"""
                                         <div class="cyp-section">
                                             <div class="cyp-section__eyebrow">07 / failure analysis</div>
-                                            <div class="cyp-section__title">Model audit: why descriptors fail</div>
+                                            <h2 class="cyp-section__title">Model audit: why descriptors fail</h2>
                                             <div class="cyp-section__rule"></div>
                                         </div>
                     """),
@@ -1132,6 +1295,18 @@ def _(
 
                     Our RandomForest model was trained strictly on 1D/2D global descriptors (MolWt, LogP, TPSA). Because it cannot "see" the 3D topology we just witnessed above, it completely fails to predict the cliff.
                     """),
+                    mo.md(
+                        f"""
+                        **Prediction versus experiment, calculated in pIC50 space**
+
+                        $$\\mathrm{{Prediction\\ error}} = |pIC50_{{predicted}} - pIC50_{{actual}}| = |{predicted:.2f} - {selected_value:.2f}| = {error:.2f}$$
+                        $$\\text{{IC50 ratio represented by this gap}} = 10^{{{error:.2f}}} \\approx {implied_ic50_ratio:,.0f}$$
+
+                        The model gives **{predicted:.2f} pIC50** and the assay reports **{selected_value:.2f} pIC50**. That means the model has **{prediction_direction}** than the measured result, with an absolute error of **{error:.2f} pIC50 units**.
+
+                        The fold value is the IC50 ratio corresponding to the logarithmic error; it is not a claim that the model has measured IC50 directly.
+                        """
+                    ).callout(kind="info"),
                     mo.ui.altair_chart(dumbbell)
                 ])
             else:
@@ -1143,6 +1318,7 @@ def _(
     return
 
 
+# Cell 18
 @app.cell(hide_code=True)
 def _(auditor, create_global_scatter, endpoint, mo, top_scaffolds):
     global_chart_container = None
@@ -1160,7 +1336,7 @@ def _(auditor, create_global_scatter, endpoint, mo, top_scaffolds):
             mo.Html(f"""
                         <div class="cyp-section">
                             <div class="cyp-section__eyebrow">08 / population-level proof</div>
-                            <div class="cyp-section__title">Global model performance</div>
+                            <h2 class="cyp-section__title">Global model performance</h2>
                             <div class="cyp-section__rule"></div>
                         </div>
             """),
@@ -1178,12 +1354,13 @@ def _(auditor, create_global_scatter, endpoint, mo, top_scaffolds):
     return
 
 
+# Cell 19
 @app.cell(hide_code=True)
 def _(mo):
-    mo.Html("""
+    closing_view = mo.Html("""
         <div class="cyp-section">
             <div class="cyp-section__eyebrow">09 / closing record</div>
-            <div class="cyp-section__title">What this notebook demonstrates</div>
+            <h2 class="cyp-section__title">What this notebook demonstrates</h2>
             <div class="cyp-section__rule"></div>
         </div>
 
@@ -1206,7 +1383,7 @@ def _(mo):
                     <h3 class="cyp-closing-heading">Acknowledgements and project links</h3>
                     <p class="cyp-closing-copy">Built with the following open tools, data sources, and project resources:</p>
                     <div class="cyp-closing-links">
-                        <a href="https://github.com/mohitupadhyay/cyp-activity-cliff">Project repository</a>
+                        <a href="https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab">Project repository</a>
                         <a href="https://molab.marimo.io/notebooks">Open the molab notebook workspace</a>
                         <a href="https://marimo.io/pages/events/notebook-competition-3">molab Notebook Competition #3</a>
                         <a href="https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release">OpenADMET Octant CYP inhibition dataset</a>
@@ -1225,7 +1402,8 @@ def _(mo):
                     </div>
                 </div>
         """)
-    return
+    closing_view
+    return (closing_view,)
 
 
 if __name__ == "__main__":
