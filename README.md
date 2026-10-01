@@ -1,210 +1,179 @@
 <h1 align="center">CYP3A4 Activity Cliff Explorer</h1>
 
 <p align="center">
+  <a href="https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab"><img src="https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub repository"></a>
+  <a href="https://molab.marimo.io/"><img src="https://img.shields.io/badge/Open%20in-molab-2563eb?style=for-the-badge" alt="Open in molab"></a>
   <a href="https://marimo.io/pages/events/notebook-competition-3"><img src="https://img.shields.io/badge/Competition-marimo%20Notebook%20%233-6f42c1?style=for-the-badge" alt="marimo Notebook Competition #3"></a>
-  <a href="https://marimo.io"><img src="https://img.shields.io/badge/Built%20with-marimo-6f42c1?style=for-the-badge" alt="Built with marimo"></a>
   <a href="https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release"><img src="https://img.shields.io/badge/Data-OpenADMET-f59e0b?style=for-the-badge" alt="OpenADMET dataset"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2ea44f?style=for-the-badge" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <b>An interactive cheminformatics notebook for finding CYP3A4 activity cliffs<br>
-  and inspecting where a simple molecular-descriptor model misses them.</b>
+  An interactive marimo notebook for inspecting CYP3A4 inhibition activity cliffs<br>
+  and auditing a simple 1D/2D molecular-descriptor baseline.
 </p>
 
 <p align="center">
-  <a href="#run-the-notebook">Run the notebook</a> ·
+  <a href="#open-the-notebook">Open the notebook</a> ·
   <a href="#how-it-works">How it works</a> ·
-  <a href="#screenshots-and-demo">Screenshots and demo</a> ·
+  <a href="#run-locally">Run locally</a> ·
   <a href="#methodology">Methodology</a>
 </p>
 
 <p align="center">
-  <a href="https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py"><strong>Open in molab</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://marimo.io/pages/events/notebook-competition-3"><strong>Competition page</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release"><strong>Dataset</strong></a>
+  <a href="https://molab.marimo.io/"><img src="https://marimo.io/molab-shield.svg" alt="Open in molab"></a>
 </p>
 
 <p align="center">
   <img src="img/header.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
 </p>
 
-<p align="center"><i>Explore measured activity, compare related molecules, and audit model error in one notebook.</i></p>
-
----
-
 ## What this project does
 
-An activity cliff is a group of structurally related molecules with substantially different measured activities. The notebook makes this pattern inspectable in the OpenADMET Octant CYP inhibition dataset.
+An activity cliff is a sharp change in measured biological activity among structurally related molecules. This notebook makes candidate cliffs inspectable in the OpenADMET Octant CYP inhibition dataset.
 
-The working app focuses on the `CYP3A4_pIC50` endpoint. It cleans valid structures, applies available assay QC filters, extracts Bemis-Murcko scaffolds, ranks scaffolds by within-scaffold variance, and opens an interactive path from scaffold selection to molecular comparison and model audit.
+The workflow focuses on the `CYP3A4_pIC50` endpoint. It canonicalizes valid `standardized_smiles`, applies the available assay-quality filters, extracts Bemis-Murcko scaffolds, and ranks scaffold groups by the sample variance of their measured pIC50 values. The interactive explorer then connects a scaffold to its molecules, structural differences, generated 3D conformers, and descriptor-based model error.
 
-This is an educational analysis and visualization notebook. It is not a clinical, regulatory, or production prediction system.
+The notebook is an educational and exploratory analysis. It does not establish a protein-bound mechanism, clinical risk, regulatory conclusion, or production-ready CYP3A4 predictor.
+
+## Why it matters
+
+CYP3A4 is an enzyme involved in the metabolism of many drugs. Its inhibition is therefore relevant to drug-drug-interaction research. `IC50` is the concentration required to reduce measured enzyme activity by 50% in an assay. `pIC50` expresses the concentration on a logarithmic scale:
+
+$$\mathrm{pIC}_{50} = -\log_{10}(\mathrm{IC}_{50}\ [\mathrm{M}])$$
+
+Lower IC50 means stronger inhibition, while higher pIC50 means stronger inhibition. For two measured pIC50 values:
+
+$$\Delta\mathrm{pIC}_{50} = \mathrm{pIC}_{50,A} - \mathrm{pIC}_{50,B}$$
+$$\frac{\mathrm{IC}_{50,B}}{\mathrm{IC}_{50,A}} = 10^{\Delta\mathrm{pIC}_{50}}$$
+
+The notebook displays this calculation when a molecule and its same-scaffold comparison molecule are selected. It reports the ratio implied by the pIC50 difference; it does not convert the dataset values back to IC50 without an explicitly known concentration unit.
 
 ## How it works
 
 ```mermaid
 flowchart TD
-    A[Load OpenADMET inhibition train split] --> B[Canonicalize standardized SMILES]
-    B --> C[Apply available QC filters]
-    C --> D[Extract Bemis-Murcko scaffolds]
-    D --> E[Rank top 15 by CYP3A4_pIC50 variance]
-    E --> F[Select a scaffold in the table]
-    F --> G[Explore variants in the graph]
-    G --> H[Select a molecule]
-    H --> I[Compare 2D differences and 3D views]
-    H --> J[Show predicted vs experimental value]
-    D --> K[Create scaffold-based 80/20 split]
-    K --> L[Train Random Forest on 12 RDKit descriptors]
-    L --> J
-    L --> M[Plot all held-out test results]
+    A[Load inhibition train split] --> B[Read standardized_smiles]
+    B --> C[Canonicalize valid structures with RDKit]
+    C --> D[Apply available QC filters]
+    D --> E[Extract Bemis-Murcko scaffolds]
+    E --> F[Build descriptor table]
+    F --> G[Split whole scaffolds 80/20]
+    G --> H[Train Random Forest on 12 descriptors]
+    E --> I[Rank held-out scaffold groups by pIC50 variance]
+    I --> J[Select scaffold and molecule]
+    J --> K[Compare 2D structures and generated 3D conformers]
+    J --> L[Compare predicted and measured pIC50]
+    H --> L
+    H --> M[Plot held-out predictions]
 ```
 
-## What you can explore
+## What you can inspect
 
-- A ranked table of the 15 highest-variance scaffolds with at least three measured molecules.
-- A `wigglystuff` molecular network centered on the selected scaffold.
-- Activity-colored molecule nodes for the `CYP3A4_pIC50` endpoint.
-- 2D structure comparison with MCS-based difference highlighting.
-- Interactive 3D views for a selected molecule and a same-scaffold high-difference analog.
-- A per-molecule dumbbell chart comparing Random Forest prediction with experimental value.
-- A global held-out scatter plot with molecule structure tooltips and activity-cliff highlighting.
-
-<p align="center">
-  <img src="img/scaffold-explorer.png" width="88%" alt="Interactive scaffold ranking table and molecular network">
-</p>
-
-<p align="center"><i>Scaffold ranking and molecular variant exploration.</i></p>
+- The selected held-out scaffold table and its within-scaffold cliff score.
+- Molecules grouped around a Bemis-Murcko scaffold in an interactive graph.
+- MCS-highlighted 2D structural differences.
+- Generated 3D conformers for visual inspection. These are not experimentally determined binding poses.
+- A formula-based potency callout showing which measured pIC50 is higher and the implied IC50 fold ratio.
+- A Random Forest prediction-versus-measurement callout and dumbbell chart.
+- A held-out global scatter plot with structure tooltips.
 
 <p align="center">
-  <img src="img/activity-cliff-analysis.png" width="88%" alt="2D and 3D activity cliff comparison">
+  <img src="img/cliff-table.png" width="88%" alt="Activity cliff ranking table">
 </p>
-
-<p align="center"><i>Selected molecule compared with a high-difference analog from the same scaffold.</i></p>
-
-## Screenshots and demo
-
+<p align="center"><i>Scaffold-level activity-cliff candidates ranked from measured CYP3A4 pIC50 values.</i></p>
 
 <p align="center">
-  <img src="img/scaffoldMetrics.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+  <img src="img/molecular-network.png" width="88%" alt="Molecular scaffold network">
 </p>
-
+<p align="center"><i>Interactive molecular neighborhood for a selected scaffold.</i></p>
 
 <p align="center">
-  <img src="img/molNetwork.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
+  <img src="img/model-fail.png" width="88%" alt="Model prediction and activity comparison">
 </p>
-
-
-
-<p align="center">
-  <img src="img/3d.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
-</p>
-
-
-<p align="center">
-  <img src="img/globalPerformance.png" width="88%" alt="CYP3A4 Activity Cliff Explorer notebook overview">
-</p>
-
-
-The repository does not currently contain a project-specific video URL. The official links below are the correct places to access the competition context, the live molab environment, and the source dataset:
-
-- [Open the notebook workspace on molab](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)  [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)
-- [Read about marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
-- [Inspect the OpenADMET dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
-
-## Run the notebook
-
-### Requirements
-
-- Python 3.10 or newer
-- Internet access for the first Hugging Face dataset download
-
-### Local setup
-
-```bash
-git clone https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab.git
-cd cyp-activity-cliff-explorer-molab
-# Create a virtual environment named '.venv'
-python3 -m venv .venv
-
-# Activate the virtual environment
-source .venv/bin/activate
-
-# Install pip upgrade just to be safe
-pip install --upgrade pip
-
-# Install the project and all dependencies from pyproject.toml
-pip install -e .
-
-marimo edit cyp_activity_cliff.py  # edit mode
-
-marimo run cyp_activity_cliff.py  # read only
-```
-
-`cyp_activity_cliff.py` also contains PEP 723 inline dependency metadata for compatible marimo environments.
-
-### Run on molab
-
-1. Open [molab notebooks](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py).
-2. Upload `cyp_activity_cliff.py`.
-3. Run the notebook.
-4. Wait for dataset preparation, scaffold extraction, and model training to complete.
-
-The notebook loads remote data and performs chemistry and model computations at runtime. Actual runtime depends on the environment and cache state.
+<p align="center"><i>Descriptor-model audit for a selected molecule.</i></p>
 
 ## Methodology
 
 ### Data preparation
 
-The app loads the `train` split of the `inhibition` configuration from:
+The notebook loads the `train` split of the `inhibition` configuration from [`openadmet/Octant_CYP_inhibition_reactivity_blog_release`](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release). It reads `standardized_smiles`, canonicalizes valid structures with RDKit, and applies filters when these fields are present:
 
-```text
-openadmet/Octant_CYP_inhibition_reactivity_blog_release
-```
+- `qc_flag_primary` must be `PASS`.
+- `drc_qc_status` must be `PASS`.
+- `rollover_status` must not be `TRUE` or `YES`.
 
-It reads `standardized_smiles`, canonicalizes valid molecules with RDKit, and filters rows when these QC columns are present:
+### Scaffold ranking
 
-- `drc_qc_status`
-- `qc_flag_primary`
-- `rollover_status`
+Bemis-Murcko scaffolds are extracted from canonical SMILES. Groups with fewer than three non-null `CYP3A4_pIC50` values are skipped. The score used by the code is the pandas sample variance:
 
-### Scaffold analysis
+$$\mathrm{CliffScore}(s) = \mathrm{Var}(y_s) = \frac{1}{n_s-1}\sum_{i=1}^{n_s}(y_i - \bar{y}_s)^2$$
 
-The app extracts Bemis-Murcko scaffolds from canonical SMILES. Scaffolds with fewer than three non-null `CYP3A4_pIC50` values are skipped. The displayed ranking is sorted by within-scaffold variance and includes molecule count and cliff score.
+This is a candidate-screening score based on activity spread within a shared scaffold. It is not a formal universal definition of an activity cliff and does not itself prove pairwise structural similarity or mechanism.
 
 ### Model audit
 
-The model is intentionally a simple baseline:
+The baseline is a `RandomForestRegressor` with 100 trees, `max_depth=10`, and `random_state=42`. It uses these 12 RDKit descriptors:
 
-- `RandomForestRegressor` with 100 trees and `max_depth=10`.
-- 12 RDKit descriptors: molecular weight, LogP, TPSA, hydrogen-bond counts, rotatable bonds, aromatic/aliphatic/saturated ring counts, total ring count, fraction CSP3, and heteroatom count.
-- Scaffold-based 80/20 train/test split with `random_state=42`.
-- Mean absolute error and $R^2$ for train and held-out test molecules.
+- Molecular weight, LogP, and TPSA.
+- Hydrogen-bond donor and acceptor counts.
+- Rotatable-bond count.
+- Aromatic, aliphatic, and saturated ring counts.
+- Total ring count, fraction CSP3, and heteroatom count.
 
-The audit is designed to expose descriptor limitations. It should not be interpreted as a validated CYP3A4 predictor.
+The split is scaffold-based: whole scaffolds are assigned to an 80% training partition or a 20% test partition. The test metrics therefore measure performance on scaffolds excluded from training for this run. The model does not receive 3D conformers, protein structures, binding poses, or explicit spatial interaction features.
 
-These tests cover backend behavior. The full notebook additionally requires access to the remote dataset and a marimo runtime.
+## Open the notebook
 
-## Data and references
+The updated molab notebook URL will be added here when available:
 
-- [OpenADMET Octant CYP inhibition and reactivity dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
+**[Open this project in molab](https://molab.marimo.io/)**
+
+The source repository is available at [github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab](https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab). The project page for [marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3) provides the competition context.
+
+## Run locally
+
+### Requirements
+
+- Python 3.10 or newer.
+- Internet access for the first Hugging Face dataset download.
+- A working RDKit installation supported by the project dependencies.
+
+### Install and run
+
+```bash
+git clone https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab.git
+cd cyp-activity-cliff-explorer-molab
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+python -m pip install -e .
+
+# Interactive editor
+marimo edit cyp_activity_cliff.py
+
+# Run-only view
+marimo run cyp_activity_cliff.py
+```
+
+The script also includes PEP 723 inline dependency metadata for compatible tools that run Python scripts with inline dependencies.
+
+## References and documentation
+
+- [Project repository](https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab)
+- [OpenADMET Octant CYP inhibition dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
+- [marimo documentation](https://docs.marimo.io/)
+- [molab](https://molab.marimo.io/)
 - [marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
-- [molab notebooks](https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py)
-- [marimo](https://marimo.io)
 - [RDKit](https://www.rdkit.org/)
 - [wigglystuff](https://github.com/koaning/wigglystuff)
-
 
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
----
-
 <p align="center">
-  <b>Explore the data. Find the cliff. Audit the model.</b>
-  <br><br>
-  <a href="https://molab.marimo.io/github/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab/blob/main/cyp_activity_cliff.py">Launch with molab</a>
+  <a href="https://molab.marimo.io/"><img src="https://marimo.io/molab-shield.svg" alt="Open in molab"></a>
 </p>
