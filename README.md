@@ -2,7 +2,9 @@
 
 <p align="center">
   <a href="https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab"><img src="https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github" alt="GitHub repository"></a>
-  <a href="https://molab.marimo.io/"><img src="https://img.shields.io/badge/Open%20in-molab-2563eb?style=for-the-badge" alt="Open in molab"></a>
+  <a href="https://molab.marimo.io/notebooks/nb_42UQLfmfgsG7gTtyvohiDV"><img src="https://img.shields.io/badge/Open%20in-molab-2563eb?style=for-the-badge" alt="Open notebook in molab"></a>
+  <a href="https://www.youtube.com/watch?v=bxvZCxglKcA"><img src="https://img.shields.io/badge/Watch%20on-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch project video on YouTube"></a>
+  <a href="https://drive.google.com/file/d/1Z0xPQYT2GQsthXiwxx4e7h6QcebIeK6W/view?usp=sharing"><img src="https://img.shields.io/badge/Video-Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch project video on Google Drive"></a>
   <a href="https://marimo.io/pages/events/notebook-competition-3"><img src="https://img.shields.io/badge/Competition-marimo%20Notebook%20%233-6f42c1?style=for-the-badge" alt="marimo Notebook Competition #3"></a>
   <a href="https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release"><img src="https://img.shields.io/badge/Data-OpenADMET-f59e0b?style=for-the-badge" alt="OpenADMET dataset"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2ea44f?style=for-the-badge" alt="MIT License"></a>
@@ -18,10 +20,6 @@
   <a href="#how-it-works">How it works</a> ·
   <a href="#run-locally">Run locally</a> ·
   <a href="#methodology">Methodology</a>
-</p>
-
-<p align="center">
-  <a href="https://molab.marimo.io/"><img src="https://marimo.io/molab-shield.svg" alt="Open in molab"></a>
 </p>
 
 <p align="center">
@@ -125,9 +123,11 @@ The split is scaffold-based: whole scaffolds are assigned to an 80% training par
 
 ## Open the notebook
 
-The updated molab notebook URL will be added here when available:
+The interactive notebook is available on Molab:
 
-**[Open this project in molab](https://molab.marimo.io/)**
+**[Open this project in Molab](https://molab.marimo.io/notebooks/nb_42UQLfmfgsG7gTtyvohiDV)**
+
+Watch the project walkthrough on [YouTube](https://www.youtube.com/watch?v=bxvZCxglKcA) or [Google Drive](https://drive.google.com/file/d/1Z0xPQYT2GQsthXiwxx4e7h6QcebIeK6W/view?usp=sharing).
 
 The source repository is available at [github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab](https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab). The project page for [marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3) provides the competition context.
 
@@ -165,7 +165,6 @@ The script also includes PEP 723 inline dependency metadata for compatible tools
 - [Project repository](https://github.com/Mohit5Upadhyay/cyp-activity-cliff-explorer-molab)
 - [OpenADMET Octant CYP inhibition dataset](https://huggingface.co/datasets/openadmet/Octant_CYP_inhibition_reactivity_blog_release)
 - [marimo documentation](https://docs.marimo.io/)
-- [molab](https://molab.marimo.io/)
 - [marimo Notebook Competition #3](https://marimo.io/pages/events/notebook-competition-3)
 - [RDKit](https://www.rdkit.org/)
 - [wigglystuff](https://github.com/koaning/wigglystuff)
@@ -173,7 +172,3 @@ The script also includes PEP 723 inline dependency metadata for compatible tools
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
-
-<p align="center">
-  <a href="https://molab.marimo.io/"><img src="https://marimo.io/molab-shield.svg" alt="Open in molab"></a>
-</p>
